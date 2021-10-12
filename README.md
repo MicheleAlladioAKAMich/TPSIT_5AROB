@@ -1,0 +1,2 @@
+# TPSIT_5AROB
+My TSPIT exercises of 2021/2022
