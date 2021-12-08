@@ -1,0 +1,27 @@
+@font-face {
+    font-family: 'Pattaya';
+    src: url(Fonts/Pattaya-Regular.ttf);
+}
+
+@font-face {
+    font-family: 'BebasNeue';
+    src: url(Fonts/BebasNeue-Regular.ttf);
+}
+
+@font-face {
+    font-family: 'Pangolin';
+    src: url(Fonts/Pangolin-Regular.ttf);
+}
+
+
+body {
+    background: red;
+    color: yellow;
+}
+
+.phrase{
+    text-align: left;
+    color: white;
+    font-family: 'Pangolin', sans-serif;
+    font-size: 20px;
+}
