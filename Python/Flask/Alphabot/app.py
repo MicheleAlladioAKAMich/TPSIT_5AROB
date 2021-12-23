@@ -1,10 +1,30 @@
+import sqlite3
+from sqlite3 import Error
 from flask import Flask, render_template, request
 import time
 import RPi.GPIO as GPIO, subprocess
 app = Flask(__name__)
 
+def create_connection(db_file): #funzione per connettere il database allo script
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file) #ettiva connessione al db
+    except Error as e: #gestione dell'errore
+        print(e)
+
+    return conn
+
+def select_task_id(conn, id):   #returna w.1 oppure w.1;s.3 in base alla query scritta sul db
+    cur = conn.cursor()         #in pratica questo serve solamente a fare le query per fare il retrive della lista di comandi
+    cur.execute(f"SELECT sequenza FROM Movimenti Where id = {id}") #esecuzione della query
+
+    rows = cur.fetchall() #applicazione della query sul database
+
+    for row in rows:
+        return(row[0]) #retrive della tabella creata
+
 class AlphaBot(object):
-    
+
     def __init__(self, in1=13, in2=12, ena=6, in3=21, in4=20, enb=26):
         self.IN1 = in1
         self.IN2 = in2
@@ -40,7 +60,7 @@ class AlphaBot(object):
         GPIO.output(self.IN4, GPIO.LOW)
         time.sleep(sTime)
         self.stop()
-        
+
     def stop(self):
         self.PWMA.ChangeDutyCycle(0)
         self.PWMB.ChangeDutyCycle(0)
@@ -48,7 +68,7 @@ class AlphaBot(object):
         GPIO.output(self.IN2, GPIO.LOW)
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.LOW)
-        
+
     def right(self, sTime=2, speed=30):
         self.PWMA.ChangeDutyCycle(speed)
         self.PWMB.ChangeDutyCycle(speed)
@@ -78,15 +98,15 @@ class AlphaBot(object):
         GPIO.output(self.IN4, GPIO.HIGH)
         time.sleep(sTime)
         self.stop()
-        
+
     def set_pwm_a(self, value):
         self.PA = value
         self.PWMA.ChangeDutyCycle(self.PA)
 
     def set_pwm_b(self, value):
         self.PB = value
-        self.PWMB.ChangeDutyCycle(self.PB)    
-        
+        self.PWMB.ChangeDutyCycle(self.PB)
+
     def set_motor(self, left, right):
         if (right >= 0) and (right <= 100):
             GPIO.output(self.IN1, GPIO.HIGH)
@@ -106,29 +126,55 @@ class AlphaBot(object):
             self.PWMB.ChangeDutyCycle(0 - left)
 
 ab = AlphaBot()
-time = 0.5
+dtime = 0.5
+
+mDict = {"forward":1,"backward":2, "left":3, "right":4, "stop":5, "fb":6, "zigzag":7, "drift":8}
 
 @app.route("/", methods=['GET', 'POST'])
+
 def index():
+    dbNotFound = False
+    connDb = create_connection("Movimenti.db")
+    if connDb == None:
+        print("Database: 404")
+        dbNotFound = True
+
     if request.method == 'POST':
         #print(request.form.get('forward'))
-        if request.form.get('forward') == 'fw':
+        if request.form.get('forward') == '▲':
             print("Avanti")
-            ab.forward(sTime=time)
-        elif  request.form.get('backward') == 'bw':
+            ab.forward(sTime=dtime)
+        elif  request.form.get('backward') == '▼':
             print("Indietro")
-            ab.backward(sTime=time)
-        elif  request.form.get('left') == 'lt':
+            ab.backward(sTime=dtime)
+        elif  request.form.get('left') == '◄':
             print("Sinistra")
-            ab.right(sTime=time)
-        elif  request.form.get('right') == 'rt':
+            ab.left(sTime=dtime)
+        elif  request.form.get('right') == '►':
             print("Destra")
-            ab.right(sTime=time)
+            ab.right(sTime=dtime)
+        elif request.form.get('movement'):
+            data = request.form.get('movement').lower()
+            commandList = select_task_id(connDb, mDict[data]).split(";")
+            print(commandList)
+            for command in commandList:
+                if dbNotFound == False:
+                    direction = command.split('-')[0]
+                    tempo = float(command.split('-')[1])
+                    print(f"{command} for {tempo} seconds")
+                if direction == 'W':
+                    ab.forward(sTime=tempo)
+                elif direction == 'S':
+                    ab.backward(sTime=tempo)
+                elif direction == 'D':
+                    ab.right(sTime=tempo)
+                elif direction == 'A':
+                    ab.left(sTime=tempo)
         else:
             print("Unknown")
     elif request.method == 'GET':
         return render_template('index.html')
-    
+
     return render_template("index.html")
 
 if __name__ == '__main__':
