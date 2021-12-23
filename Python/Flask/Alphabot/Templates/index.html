@@ -3,12 +3,19 @@
         <link rel="stylesheet" href='/static/style.css' />
     </head>
     <body>
-        <h3>Bottoni</h3>
-        <form method="post" action="/" class="phrase">
-            <input type="submit" value="fw" name="forward"/>
-            <input type="submit" value="bw" name="backward"/>
-            <input type="submit" value="rt" name="right"/>
-            <input type="submit" value="lt" name="left"/>
+        <h1>Bottoni</h1>
+        <h2>Premi le frecce per direzionare il robot</h2>
+        <form method="post" action="/">
+            <div><input type="submit" class="button" value="▲" name="forward"/></div><br>
+            <div><input type="submit" class="button" value="◄" name="left"/>
+            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp    <!--Spaziatura tra i buttono dx e sx-->
+            <input type="submit" class="button" value="►" name="right"/></div><br>
+            <div><input type="submit" class="button" value="▼" name="backward"/></div><br>
+        </form><br>
+
+        <h2>Inserisci il nome del movimento da eseguire</h2>
+        <form method="post" action="/">
+            <div><input type="text" id="movementChoice" placeholder="Inserisci il movimento da eseguire" name="movement"></div>
         </form>
     </body>
 </html>
