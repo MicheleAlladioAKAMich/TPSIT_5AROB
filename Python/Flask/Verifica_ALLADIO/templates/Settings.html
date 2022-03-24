@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title>Settings</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h1>Insert settings</h1>
+        <h3 style="color: orange;">Warning: first log require not to let the State empty. If so, the state will be considered ATTIVO!</h3>
+        <br>
+        <form method="post">
+            Inserisci la durata di ogni colore<br>
+            <input type="text" placeholder="Verde" name="verde">
+            <input type="text" placeholder="Giallo" name="giallo">
+            <input type="text" placeholder="Rosso" name="rosso">
+
+            <br>Inserisci lo stato del semaforo (ATTIVO/SPENTO)<br>
+            <input type="text" placeholder="State" name="state">
+            <input type="submit" value="Change_settings" class="button">
+        </form>
+        <br>
+        {% if error %}
+        <p class="error"><strong>{{error}}</strong></p>
+        {%endif%}
+    </body>
+</html>
